@@ -13,6 +13,19 @@ resource "aws_internet_gateway" "containerlab_igw" {
   vpc_id = aws_vpc.containerlab_vpc.id
 }
 
+resource "aws_route_table" "containerlab_routetable" {
+  vpc_id = aws_vpc.containerlab_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.containerlab_igw.id
+  }
+}
+
+resource "aws_route_table_association" "rt_association" {
+  subnet_id = aws_subnet.public.id
+  route_table_id = aws_route_table.containerlab_routetable.id
+}
+
 resource "aws_subnet" "public" {
   vpc_id = aws_vpc.containerlab_vpc.id
   cidr_block = var.subnet_cidr_block
@@ -27,7 +40,7 @@ resource "aws_security_group" "allow_ssh" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = [data.aws_ip_ranges.region_specific_instance_connect.cidr_blocks[0]]
+    cidr_blocks = [data.aws_ip_ranges.region_specific_instance_connect.cidr_blocks[0], "${local.ip_address}/32"]
   }
 
   egress {
@@ -43,6 +56,7 @@ resource "aws_instance" "containerlab_instance" {
   instance_type = var.containerlab_ami_instance_type
   subnet_id = aws_subnet.public.id
   security_groups = [aws_security_group.allow_ssh.id]
+  user_data = file("userdata.txt")
   tags = {
     "Name" = "containerlab"
   }
