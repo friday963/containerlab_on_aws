@@ -22,3 +22,8 @@ go.work
 .vscode
 
 scratch/
+
+*.hcl
+*.tfstate
+*.backup
+.terraform/
