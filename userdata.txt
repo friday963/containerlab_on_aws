@@ -1,2 +1,3 @@
-yum install docker
+#!/bin/bash
+yum install docker -y
 bash -c "$(curl -sL https://get.containerlab.dev)"

@@ -1,0 +1,50 @@
+---
+- name: Connect to EC2 instance
+  hosts: container_lab_instance
+  gather_facts: false
+  tasks:
+    - name: Create container_images folder
+      file:
+        path: /home/ec2-user/containerlab_images
+        state: directory
+    - name: Create containerlab_environment folder
+      file:
+        path: /home/ec2-user/containerlab_environment
+        state: directory
+    - name: Uploading topology file
+      copy:
+        src: TODO.md
+        dest: /home/ec2-user/containerlab_environment
+    - name: Uploading containerlab images
+      copy:
+        src: cEOS64-lab-4.30.1F.tar
+        dest: /home/ec2-user/containerlab_images/cEOS64-lab-4.30.1F.tar
+    #TODO: add something to automatically install the images
+
+- name: Become elevated for docker processes
+  hosts: container_lab_instance
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Start docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+      notify: 
+        - restart docker service
+
+    - name: Load images into docker from tarball.
+      command: docker import /home/ec2-user/containerlab_images/cEOS64-lab-4.30.1F.tar ceos:4.30
+      
+
+  handlers:
+    - name: restart docker service
+      service:
+        name: docker
+        state: restarted

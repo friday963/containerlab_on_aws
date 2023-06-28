@@ -1,6 +1,6 @@
 variable "region" {
   type = string
-  default = "us-west-2"
+  default = "us-east-2"
   description = "Location all resources will be deployed into."
 }
 
@@ -8,6 +8,11 @@ variable "vpc_cidr_block" {
   type = string
   default = "10.10.0.0/16"
   description = "CIDR block for the entire VPC."
+}
+
+variable "key_pair_name" {
+  type = string
+  default = "containerlab_key"
 }
 
 variable "subnet_cidr_block" {
@@ -20,7 +25,7 @@ variable "subnet_cidr_block" {
 #If you choose an AMI of some other type, install the instance connect binary yourself.
 variable "containerlab_ami" {
   type = string
-  default = "ami-0cef94f067b35ada0"
+  default = "ami-01ba8fe702263d044"
 }
 
 variable "containerlab_ami_instance_type" {

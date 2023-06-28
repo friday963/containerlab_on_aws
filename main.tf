@@ -51,12 +51,28 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
+resource "tls_private_key" "containerlab_key" {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+
+
+resource "aws_key_pair" "containerlab_keypair" {
+  key_name = var.key_pair_name
+  public_key = tls_private_key.containerlab_key.public_key_openssh
+  provisioner "local-exec" {
+    command = "echo '${tls_private_key.containerlab_key.private_key_pem}' > ./${var.key_pair_name}.pem && chmod 600 ./${var.key_pair_name}.pem"
+  }
+}
+
 resource "aws_instance" "containerlab_instance" {
   ami = var.containerlab_ami
   instance_type = var.containerlab_ami_instance_type
   subnet_id = aws_subnet.public.id
   security_groups = [aws_security_group.allow_ssh.id]
   user_data = file("userdata.txt")
+  key_name = aws_key_pair.containerlab_keypair.key_name
   tags = {
     "Name" = "containerlab"
   }

@@ -27,3 +27,8 @@ scratch/
 *.tfstate
 *.backup
 .terraform/
+*.tar
+/venv
+*.pem
+*.ini
+
