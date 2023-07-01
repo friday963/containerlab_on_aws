@@ -15,3 +15,12 @@ locals {
     parsed_data = chomp(data.http.get_public_ip_address.response_body)
     ip_address = local.parsed_data
 }
+
+
+output "instance_connect_results" {
+    value = data.aws_ip_ranges.region_specific_instance_connect.cidr_blocks[0]
+}
+
+output "home_ip_address" {
+    value = local.ip_address
+}

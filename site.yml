@@ -2,29 +2,35 @@
 - name: Connect to EC2 instance
   hosts: container_lab_instance
   gather_facts: false
+  vars_files:
+    - vars.yml
   tasks:
     - name: Create container_images folder
       file:
-        path: /home/ec2-user/containerlab_images
+        path: "{{ec2_images_path}}"
         state: directory
     - name: Create containerlab_environment folder
       file:
-        path: /home/ec2-user/containerlab_environment
+        path: "{{ec2_containerlab_environment}}"
         state: directory
     - name: Uploading topology file
       copy:
-        src: TODO.md
-        dest: /home/ec2-user/containerlab_environment
+        src: "{{topology_file}}"
+        dest: "{{ec2_containerlab_environment}}"
+      when: topology_file is defined
     - name: Uploading containerlab images
       copy:
-        src: cEOS64-lab-4.30.1F.tar
-        dest: /home/ec2-user/containerlab_images/cEOS64-lab-4.30.1F.tar
-    #TODO: add something to automatically install the images
+        src: "{{item}}"
+        dest: "{{ec2_images_path}}/{{item}}"
+      with_items: "{{images_to_upload_and_install}}"
+      when: images_to_upload_and_install is defined
 
 - name: Become elevated for docker processes
   hosts: container_lab_instance
   gather_facts: false
   become: true
+  vars_files:
+    - vars.yml
   tasks:
     - name: Start docker
       systemd:
@@ -38,11 +44,9 @@
         append: yes
       notify: 
         - restart docker service
-
     - name: Load images into docker from tarball.
-      command: docker import /home/ec2-user/containerlab_images/cEOS64-lab-4.30.1F.tar ceos:4.30
-      
-
+      command: "docker import {{ec2_images_path}}/{{item}} {{item | regex_replace('.tar', '') | lower}}"
+      with_items: "{{images_to_upload_and_install}}"
   handlers:
     - name: restart docker service
       service:

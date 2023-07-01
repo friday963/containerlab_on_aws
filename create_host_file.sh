@@ -9,7 +9,7 @@ fi
 # Get the current directory of the script
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ip_address=$1
-pem_file="$script_dir/containerlab_key.pem"
+pem_file="$script_dir/containerlab-key.pem"
 host_file="hosts.ini"
 
 # Check if the PEM file exists

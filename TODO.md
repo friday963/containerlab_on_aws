@@ -1,1 +1,0 @@
-Add something to docker file that makes script executable.
