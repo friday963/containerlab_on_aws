@@ -17,19 +17,42 @@
         state: directory
       tags: 
         - create_folders
-    - name: Uploading topology file
-      copy:
-        src: "{{topology_file}}"
-        dest: "{{ec2_containerlab_environment}}"
-      when: topology_file is defined
+
+    - name: Find file types associated with containerlab topology
+      find:
+        paths: "cl_topology_images/"
+        patterns: "*.yaml,*.yml"
+        recurse: no
+      register: yaml_files
+      delegate_to: localhost
       tags: 
         - upload_containerlab_files
-    - name: Uploading containerlab images
+
+    - name: Find container images ending in .tar
+      find: 
+        paths: "cl_topology_images/"
+        patterns: "*.tar"
+        recurse: no
+      register: tar_files
+      delegate_to: localhost
+      tags: 
+        - upload_containerlab_files
+
+    - name: "Copy YAML/YML files to {{ec2_containerlab_environment}}"
       copy:
-        src: "{{item}}"
-        dest: "{{ec2_images_path}}/{{item}}"
-      with_items: "{{images_to_upload_and_install}}"
-      when: images_to_upload_and_install is defined
+        src: "{{ item.path }}"
+        dest: "{{ec2_containerlab_environment}}"
+      loop: "{{ yaml_files.files }}"
+      when: yaml_files.files | length > 0
+      tags: 
+        - upload_containerlab_files
+
+    - name: "Copy TAR files to {{ec2_images_path}}"
+      copy:
+        src: "{{ item.path }}"
+        dest: "{{ec2_images_path}}"
+      loop: "{{ tar_files.files }}"
+      when: tar_files.files | length > 0
       tags: 
         - upload_containerlab_files
 
