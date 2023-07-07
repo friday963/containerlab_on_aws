@@ -5,15 +5,16 @@ Containerlab on AWS is a project aimed at giving users the ability to deploy con
 *Currently this project is more suited to be run from a linux host but eventually this project will be containerized allowing it to be run from anywhere.*
 
 Installation:
-1. Install Terraform - https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
-2. Install the AWS CLI
+1. git clone this project.
+2. Install Terraform - https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
+3. Install the AWS CLI
     ```
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
     unzip awscliv2.zip
     sudo ./aws/install
     ```
-3. Install Python >=3.9 - https://www.python.org/downloads/
-4. Create a virtual environment:
+4. Install Python >=3.9 - https://www.python.org/downloads/
+5. Create a virtual environment:
     ```
     python3 -m venv venv
     source venv/bin/activate
