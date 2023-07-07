@@ -1,6 +1,6 @@
 # Ansible specific variables
-ec2_images_path: /home/ec2-user/containerlab_images
-ec2_containerlab_environment: /home/ec2-user/containerlab_environment
+ec2_images_path: /home/containerlabuser/containerlab_images
+ec2_containerlab_environment: /home/containerlabuser/containerlab_environment
 topology_file: topology.yml
 images_to_upload_and_install:
 # Include the path to the images
@@ -11,6 +11,7 @@ containerlab_naming_convention: containerlab
 region: us-east-2
 vpc_cidr_block: 10.10.0.0/16
 subnet_cidr_block: 10.10.1.0/24
-key_pair_name: "containerlab-key"
-ec2_instance_type: t2.micro
+key_pair_name: containerlab-key
+ec2_instance_type: t2.medium
 ami_id: ami-024e6efaf93d85776
+ec2_user_name: containerlabuser

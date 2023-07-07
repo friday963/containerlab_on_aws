@@ -9,44 +9,100 @@
       file:
         path: "{{ec2_images_path}}"
         state: directory
+      tags: 
+        - create_folders
     - name: Create containerlab_environment folder
       file:
         path: "{{ec2_containerlab_environment}}"
         state: directory
+      tags: 
+        - create_folders
     - name: Uploading topology file
       copy:
         src: "{{topology_file}}"
         dest: "{{ec2_containerlab_environment}}"
       when: topology_file is defined
+      tags: 
+        - upload_containerlab_files
     - name: Uploading containerlab images
       copy:
         src: "{{item}}"
         dest: "{{ec2_images_path}}/{{item}}"
       with_items: "{{images_to_upload_and_install}}"
       when: images_to_upload_and_install is defined
+      tags: 
+        - upload_containerlab_files
 
 - name: Become elevated for docker processes
   hosts: container_lab_instance
-  gather_facts: false
+  gather_facts: true
   become: true
   vars_files:
     - vars.yml
   tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      tags: 
+        - install_docker
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
+        state: present
+      tags: 
+        - install_docker
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+      tags: 
+        - install_docker
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+        filename: docker
+      tags: 
+        - install_docker
+    - name: Install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+      tags: 
+        - install_docker
     - name: Start docker
       systemd:
         name: docker
         state: started
         enabled: yes
-    - name: Add ec2-user to docker group
+      tags: 
+        - configure_docker
+    - name: "Add {{ec2_user_name}} to docker group"
       user:
-        name: ec2-user
+        name: "{{ec2_user_name}}"
         groups: docker
         append: yes
       notify: 
         - restart docker service
+      tags: 
+        - configure_docker
     - name: Load images into docker from tarball.
       command: "docker import {{ec2_images_path}}/{{item}} {{item | regex_replace('.tar', '') | lower}}"
       with_items: "{{images_to_upload_and_install}}"
+      tags: 
+        - import_docker_images
+    - name: Install containerlab
+      shell: bash -c "$(curl -sL https://get.containerlab.dev)"
+      tags: 
+        - configure_containerlab
   handlers:
     - name: restart docker service
       service:

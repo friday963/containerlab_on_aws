@@ -1,3 +1,12 @@
+terraform {
+    required_providers {
+        aws = "5.5.0"
+        http = "3.4.0"
+        tls = "4.0.4"
+        null = "3.2.1"
+        template = "2.2.0"
+    }
+}
 
 locals {
   yaml_file = yamldecode(file("./vars.yml"))
@@ -23,5 +32,6 @@ module "compute" {
   subnet_id = module.network.subnet_id
   security_groups = module.network.security_group_id
   name = local.yaml_file.containerlab_naming_convention
+  ec2_user_name = local.yaml_file.ec2_user_name
 }
 

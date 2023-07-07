@@ -21,3 +21,7 @@ variable "security_groups" {
 variable "name" {
   type = string
 }
+
+variable "ec2_user_name" {
+  type = string
+}
