@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">=1.5.2"
     required_providers {
         aws = "5.5.0"
         http = "3.4.0"
