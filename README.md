@@ -73,9 +73,14 @@ Besides building the infrastucture terraform is also performing a few things beh
 
 # Troubleshooting
 - Ansible is not recognized or is throwing errors.
-    - Make sure your virtual environemnt is still activated after installing the requirements.
+    - Make sure your virtual environment is still activated after installing the requirements.
     ```
     source venv/bin/activate
     ```
 - Containerlab command erroring
     - Deployments and destroys require sudo, ensure you're running commands as sudo.
+- CPU virtualization support not available error
+    - This issue is seen when trying to deploy vrnetlab container images (Cisco/Juniper/vEOS) with containerlab on regular VM based EC2 instances in AWS
+        - The root cause is AWS VMs not supporting nested virtualisation - bare metal servers need to be used instead
+    - Workaround: Change `ec2_instance_type` variable in **vars.yml** file to `c5.metal`
+      - For more information refer to this GitHub issue: [Issue 5](https://github.com/friday963/containerlab_on_aws/issues/5)
